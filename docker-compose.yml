@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+      POSTGRES_HOST_AUTH_METHOD: trust  # Разрешаем подключение без пароля
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    dns:
+      - 8.8.8.8 
+      - 1.1.1.1 
+    build: .
+    ports:
+      - "5555:5555"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: mydb
+      FLASK_APP: "app:create_app()"
+      FLASK_ENV: "development"
+      DATABASE_URL: "postgresql://user:password@db:5432/mydb"
+      UPDATE_INTERVAL: "1"
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
+
